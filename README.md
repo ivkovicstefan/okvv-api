@@ -46,11 +46,19 @@ Endpoints so far:
 | ------------------ | -------------------------------- |
 | `GET /health`      | Liveness probe → `200 Healthy`   |
 | `GET /openapi/v1.json` | OpenAPI document (Development only) |
+| `GET /_diag/throw/{kind}` | Exercises the error pipeline (Development/Testing only) |
+
+## Error handling
+
+Exception-based: `AppException` categories in `OkVolleyVibes.Domain/Common/Exceptions/`
+(`NotFound` → 404, `Validation` → 400, `Conflict` → 409, `BusinessRule` → 422, `Forbidden` → 403),
+a chain of `IExceptionHandler`s renders RFC 9457 `ProblemDetails` with `errorCode` / `errors` /
+`traceId`; unknown exceptions → generic `500`. See [`docs/error-handling.md`](docs/error-handling.md).
 
 ## Next steps (not yet done)
 
 - EF Core `AppDbContext` + `IAppDbContext` port + first migration (MSSQL)
-- Request dispatcher (`ISender`) + validation pipeline behavior + `ProblemDetails` mapping
+- Request dispatcher (`ISender`) + validation pipeline behavior (auto-throws `ValidationException`)
 - ASP.NET Core Identity + JWT, authorization policies (CEO / Coach / Player + team-scoped claims)
 - Central Package Management (`Directory.Packages.props`)
 - Dockerfile + `docker compose` (API + SQL Server Express) + GitHub Actions CI
