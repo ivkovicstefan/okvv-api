@@ -19,6 +19,7 @@ OkVolleyVibes.Api/                 # minimal-API host
   Endpoints/                       #   IEndpoint + assembly-scan registration (REPR infrastructure)
   Features/<Feature>/*Endpoint.cs  #   one REPR endpoint per file  (Features/Health = reference example)
 OkVolleyVibes.Application/         # use cases, ports, validators, pipeline behaviors  (AddApplication())
+OkVolleyVibes.Mediator/           # in-house mediator: ISender + IRequestHandler + IPipelineBehavior
 OkVolleyVibes.Domain/             # entities, value objects, domain events — zero dependencies
 OkVolleyVibes.Infrastructure/     # EF Core DbContext + migrations + port adapters  (AddInfrastructure())
 OkVolleyVibes.Tests/             # xUnit + FluentAssertions + NetArchTest
@@ -26,8 +27,11 @@ OkVolleyVibes.Tests/             # xUnit + FluentAssertions + NetArchTest
   Architecture/ArchitectureTests  #   enforces the Clean Architecture dependency rules
 ```
 
-Dependency direction: `Api → Application → Domain`, `Infrastructure → Application → Domain`, nothing → `Api`.
-Enforced by `ArchitectureTests`. See the `dotnet-api` skill for conventions.
+Dependency direction: `Api → Application → Domain`, `Infrastructure → Application → Domain`,
+`Application → Mediator`, nothing → `Api`. Enforced by `ArchitectureTests`. See the `dotnet-api` skill.
+
+Request pipeline: endpoints call `ISender.Send(command)` → `LoggingBehavior` → `ValidationBehavior`
+(FluentValidation → `ValidationException` on failure) → handler. See [`docs/mediator.md`](docs/mediator.md).
 
 ## Getting started
 
@@ -47,6 +51,7 @@ Endpoints so far:
 | `GET /health`      | Liveness probe → `200 Healthy`   |
 | `GET /openapi/v1.json` | OpenAPI document (Development only) |
 | `GET /_diag/throw/{kind}` | Exercises the error pipeline (Development/Testing only) |
+| `GET /_diag/ping?message=` | Exercises the mediator pipeline (Development/Testing only) |
 
 ## Error handling
 
@@ -57,8 +62,10 @@ a chain of `IExceptionHandler`s renders RFC 9457 `ProblemDetails` with `errorCod
 
 ## Next steps (not yet done)
 
-- EF Core `AppDbContext` + `IAppDbContext` port + first migration (MSSQL)
-- Request dispatcher (`ISender`) + validation pipeline behavior (auto-throws `ValidationException`)
-- ASP.NET Core Identity + JWT, authorization policies (CEO / Coach / Player + team-scoped claims)
+- EF Core `AppDbContext` + `IAppDbContext` port + first migration (MSSQL) + `docker compose`
+- ASP.NET Core Identity + JWT; multi-role users (CEO / FinanceManager / Coach / RecreationCoordinator / Player), `PlayerProfile`
+- Register / login / email verification / password reset / email change; Google OAuth (later)
 - Central Package Management (`Directory.Packages.props`)
-- Dockerfile + `docker compose` (API + SQL Server Express) + GitHub Actions CI
+- GitHub Actions CI
+
+**Development is paused here pending an agreed functional-requirements document.**

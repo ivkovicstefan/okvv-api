@@ -12,13 +12,14 @@ public sealed class ArchitectureTests
     private const string Application = "OkVolleyVibes.Application";
     private const string Infrastructure = "OkVolleyVibes.Infrastructure";
     private const string Api = "OkVolleyVibes.Api";
+    private const string Mediator = "OkVolleyVibes.Mediator";
 
     [Fact]
     public void Domain_should_not_depend_on_other_layers()
     {
         TestResult result = Types.InAssembly(DomainAssemblyReference.Assembly)
             .That().ResideInNamespace(Domain)
-            .ShouldNot().HaveDependencyOnAny(Application, Infrastructure, Api)
+            .ShouldNot().HaveDependencyOnAny(Application, Infrastructure, Api, Mediator)
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue();

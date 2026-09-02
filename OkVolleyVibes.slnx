@@ -4,6 +4,7 @@
     <Project Path="OkVolleyVibes.Application/OkVolleyVibes.Application.csproj" />
     <Project Path="OkVolleyVibes.Domain/OkVolleyVibes.Domain.csproj" />
     <Project Path="OkVolleyVibes.Infrastructure/OkVolleyVibes.Infrastructure.csproj" />
+    <Project Path="OkVolleyVibes.Mediator/OkVolleyVibes.Mediator.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="OkVolleyVibes.Tests/OkVolleyVibes.Tests.csproj" />
