@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OkVolleyVibes.Application\OkVolleyVibes.Application.csproj" />
     <ProjectReference Include="..\OkVolleyVibes.Infrastructure\OkVolleyVibes.Infrastructure.csproj" />
+    <ProjectReference Include="..\OkVolleyVibes.Mediator\OkVolleyVibes.Mediator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
