@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="OkVolleyVibes.Api/OkVolleyVibes.Api.csproj" />
+    <Project Path="OkVolleyVibes.Application/OkVolleyVibes.Application.csproj" />
+    <Project Path="OkVolleyVibes.Domain/OkVolleyVibes.Domain.csproj" />
+    <Project Path="OkVolleyVibes.Infrastructure/OkVolleyVibes.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="OkVolleyVibes.Tests/OkVolleyVibes.Tests.csproj" />
+  </Folder>
+</Solution>

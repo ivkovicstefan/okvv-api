@@ -1,0 +1,20 @@
+# Normalize line endings: LF in the repo, native on checkout for scripts.
+* text=auto eol=lf
+
+*.cs        text eol=lf
+*.csproj    text eol=lf
+*.slnx      text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+
+*.sln       text eol=crlf
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+*.ps1       text eol=crlf
+
+*.png       binary
+*.jpg       binary
+*.ico       binary
+*.snk       binary
