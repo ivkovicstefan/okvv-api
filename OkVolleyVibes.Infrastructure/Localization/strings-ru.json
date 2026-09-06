@@ -1,0 +1,12 @@
+{
+  "Register.FirstName.Required": "Укажите имя.",
+  "Register.LastName.Required": "Укажите фамилию.",
+  "Register.Email.Required": "Укажите адрес электронной почты.",
+  "Register.Email.Invalid": "Введите корректный адрес электронной почты.",
+  "Register.Phone.Required": "Укажите номер телефона.",
+  "Register.Phone.Invalid": "Введите корректный номер телефона.",
+  "Register.Password.Required": "Укажите пароль.",
+  "Register.Password.TooShort": "Пароль должен содержать не менее {0} символов.",
+  "Email.Verify.Subject": "Подтвердите аккаунт OK Volley Vibes",
+  "Email.Verify.Body": "<p>Добро пожаловать в OK Volley Vibes!</p><p>Подтвердите адрес электронной почты, чтобы активировать аккаунт:</p><p><a href=\"{0}\">Подтвердить адрес</a></p><p>Ссылка действительна 24 часа. Если вы не регистрировались, проигнорируйте это письмо.</p>"
+}

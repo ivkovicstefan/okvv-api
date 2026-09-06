@@ -1,6 +1,7 @@
 using OkVolleyVibes.Api;
 using OkVolleyVibes.Application;
 using OkVolleyVibes.Infrastructure;
+using OkVolleyVibes.Infrastructure.Persistence;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,11 @@ builder.Services
 WebApplication app = builder.Build();
 
 app.UseApi();
+
+if (app.Environment.IsDevelopment())
+{
+    await app.Services.InitializeDatabaseAsync();
+}
 
 app.Run();
 

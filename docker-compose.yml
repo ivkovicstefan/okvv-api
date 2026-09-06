@@ -1,0 +1,31 @@
+# Local SQL Server for development, as an alternative to SQL Server LocalDB.
+#
+#   docker compose up -d
+#
+# Then point the API at it (e.g. in appsettings.Development.json or user-secrets):
+#   "ConnectionStrings:Database":
+#     "Server=localhost,1433;Database=OkVolleyVibes;User Id=sa;Password=Your_strong_Pass123!;TrustServerCertificate=True"
+#
+# LocalDB stays the zero-config default; this exists for parity with the deployed
+# SQL Server Express and for machines without LocalDB.
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: okvv-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_strong_Pass123!"   # change me
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - okvv-sql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  okvv-sql-data:

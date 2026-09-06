@@ -15,9 +15,11 @@ public static class DependencyInjection
     {
         services.AddMediator(ApplicationAssemblyReference.Assembly);
 
-        // Registration order = execution order (outermost first): logging wraps validation wraps the handler.
+        // Registration order = execution order (outermost first):
+        // logging  ->  validation (reject before opening a transaction)  ->  transaction  ->  handler.
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
 
         services.AddValidatorsFromAssembly(ApplicationAssemblyReference.Assembly, includeInternalTypes: true);
 

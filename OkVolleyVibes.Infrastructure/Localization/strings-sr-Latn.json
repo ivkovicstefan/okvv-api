@@ -1,0 +1,12 @@
+{
+  "Register.FirstName.Required": "Ime je obavezno.",
+  "Register.LastName.Required": "Prezime je obavezno.",
+  "Register.Email.Required": "Imejl adresa je obavezna.",
+  "Register.Email.Invalid": "Unesite ispravnu imejl adresu.",
+  "Register.Phone.Required": "Broj telefona je obavezan.",
+  "Register.Phone.Invalid": "Unesite ispravan broj telefona.",
+  "Register.Password.Required": "Lozinka je obavezna.",
+  "Register.Password.TooShort": "Lozinka mora imati najmanje {0} znakova.",
+  "Email.Verify.Subject": "Potvrdite svoj OK Volley Vibes nalog",
+  "Email.Verify.Body": "<p>Dobro došli u OK Volley Vibes!</p><p>Potvrdite svoju imejl adresu da biste aktivirali nalog:</p><p><a href=\"{0}\">Potvrdi imejl</a></p><p>Ovaj link ističe za 24 sata. Ako niste kreirali nalog, zanemarite ovu poruku.</p>"
+}

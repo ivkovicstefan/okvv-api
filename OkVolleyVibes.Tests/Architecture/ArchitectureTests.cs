@@ -46,4 +46,29 @@ public sealed class ArchitectureTests
 
         result.IsSuccessful.Should().BeTrue();
     }
+
+    [Fact]
+    public void Domain_should_not_depend_on_ef_core_or_aspnetcore()
+    {
+        TestResult result = Types.InAssembly(DomainAssemblyReference.Assembly)
+            .That().ResideInNamespace(Domain)
+            .ShouldNot().HaveDependencyOnAny("Microsoft.EntityFrameworkCore", "Microsoft.AspNetCore")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Application_should_not_depend_on_aspnetcore_identity_or_ef_provider()
+    {
+        // The EF Core abstractions (DbSet on IAppDbContext) are allowed; the provider and ASP.NET are not.
+        TestResult result = Types.InAssembly(ApplicationAssemblyReference.Assembly)
+            .That().ResideInNamespace(Application)
+            .ShouldNot().HaveDependencyOnAny(
+                "Microsoft.AspNetCore",
+                "Microsoft.EntityFrameworkCore.SqlServer")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue();
+    }
 }
