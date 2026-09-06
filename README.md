@@ -55,6 +55,7 @@ Endpoints so far:
 | ------------------ | -------------------------------- |
 | `GET /health`      | Liveness probe → `200 Healthy`   |
 | `GET /openapi/v1.json` | OpenAPI document (Development only) |
+| `GET /scalar/v1` | Scalar API reference / try-it UI (Development only) |
 | `POST /api/auth/register` | Sign up → `Player` role + verification email |
 | `GET /api/auth/verify-email?userId=&token=` | Confirm an email address |
 | `POST /api/auth/resend-verification` | Re-send the verification email (always `202`) |

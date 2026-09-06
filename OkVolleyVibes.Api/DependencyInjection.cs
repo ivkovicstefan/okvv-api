@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Threading.RateLimiting;
 using OkVolleyVibes.Api.Endpoints;
 using OkVolleyVibes.Api.ExceptionHandling;
+using Scalar.AspNetCore;
 
 namespace OkVolleyVibes.Api;
 
@@ -71,6 +72,9 @@ public static class DependencyInjection
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+            app.MapScalarApiReference(options => options
+                .WithTitle("OK Volley Vibes API")
+                .WithOpenApiRoutePattern("/openapi/v1.json"));
         }
 
         app.MapEndpoints();
