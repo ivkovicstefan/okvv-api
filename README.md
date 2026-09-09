@@ -20,10 +20,9 @@ OkVolleyVibes.Api/                 # minimal-API host
   Features/<Feature>/*Endpoint.cs  #   one REPR endpoint per file  (Features/Health = reference example)
 OkVolleyVibes.Application/         # use cases, ports, validators, pipeline behaviors  (AddApplication())
 OkVolleyVibes.Mediator/           # in-house mediator: ISender + IRequestHandler + IPipelineBehavior
-OkVolleyVibes.Domain/             # entities, value objects, domain events — zero dependencies
-OkVolleyVibes.Infrastructure/     # EF Core DbContext + migrations + port adapters  (AddInfrastructure())
-OkVolleyVibes.Tests/             # xUnit + FluentAssertions + NetArchTest
-  Endpoints/HealthEndpointTests   #   /health integration test via WebApplicationFactory
+OkVolleyVibes.Domain/             # entities (PlayerProfile), exceptions, Roles — zero ASP.NET/EF deps
+OkVolleyVibes.Infrastructure/     # EF Core AppDbContext + migrations + ASP.NET Core Identity + adapters
+OkVolleyVibes.Tests/             # xUnit + FluentAssertions + NetArchTest (LocalDB-backed integration tests)
   Architecture/ArchitectureTests  #   enforces the Clean Architecture dependency rules
 ```
 
@@ -35,13 +34,19 @@ Request pipeline: endpoints call `ISender.Send(command)` → `LoggingBehavior` �
 
 ## Getting started
 
+Needs SQL Server. **SQL Server LocalDB** is the zero-config default (`(localdb)\MSSQLLocalDB`);
+`docker compose up -d` starts SQL Server Express as an alternative (see `docker-compose.yml`).
+
 ```bash
 dotnet restore
 dotnet build
-dotnet test
+dotnet test                        # integration tests spin up throwaway LocalDB databases
 
-# run (http profile → http://localhost:5080, https → https://localhost:7080)
+# run (http profile → http://localhost:5080); on Development it migrates + seeds automatically
 dotnet run --project OkVolleyVibes.Api --launch-profile http
+
+# add a migration
+dotnet ef migrations add <Name> --project OkVolleyVibes.Infrastructure --startup-project OkVolleyVibes.Api --output-dir Persistence/Migrations
 ```
 
 Endpoints so far:
@@ -50,8 +55,17 @@ Endpoints so far:
 | ------------------ | -------------------------------- |
 | `GET /health`      | Liveness probe → `200 Healthy`   |
 | `GET /openapi/v1.json` | OpenAPI document (Development only) |
-| `GET /_diag/throw/{kind}` | Exercises the error pipeline (Development/Testing only) |
-| `GET /_diag/ping?message=` | Exercises the mediator pipeline (Development/Testing only) |
+| `GET /swagger` | Swagger UI (Development only) |
+| `POST /api/auth/register` | Sign up → `Player` role + verification email |
+| `GET /api/auth/verify-email?userId=&token=` | Confirm an email address |
+| `POST /api/auth/resend-verification` | Re-send the verification email (always `202`) |
+| `GET /_diag/throw/{kind}` · `GET /_diag/ping?message=` | Pipeline probes (Development/Testing only) |
+
+## Accounts, identity & localization
+
+ASP.NET Core Identity (`User`/`Role`, Guid keys) in Infrastructure; `PlayerProfile` (1:1) in Domain.
+Multi-role users; self-registration → `Player`; email verification required. Localized
+(`en` / `sr-Latn` / `ru`) validation messages and emails. See [`docs/identity-and-auth.md`](docs/identity-and-auth.md).
 
 ## Error handling
 
@@ -62,10 +76,10 @@ a chain of `IExceptionHandler`s renders RFC 9457 `ProblemDetails` with `errorCod
 
 ## Next steps (not yet done)
 
-- EF Core `AppDbContext` + `IAppDbContext` port + first migration (MSSQL) + `docker compose`
-- ASP.NET Core Identity + JWT; multi-role users (CEO / FinanceManager / Coach / RecreationCoordinator / Player), `PlayerProfile`
-- Register / login / email verification / password reset / email change; Google OAuth (later)
-- Central Package Management (`Directory.Packages.props`)
-- GitHub Actions CI
+- Login (JWT access + refresh, lockout), refresh rotation, logout — `feature/auth-login`
+- Password reset, change password, change email — their own branches
+- Roles & user administration (FR-B); Google OAuth (later)
+- Central Package Management (`Directory.Packages.props`); GitHub Actions CI
+- Production: real email provider, Data Protection key persistence, explicit migrate step
 
-**Development is paused here pending an agreed functional-requirements document.**
+See the functional-requirements draft and its open-questions register for what's still unscoped.

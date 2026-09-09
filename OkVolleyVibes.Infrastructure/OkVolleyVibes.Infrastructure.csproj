@@ -1,13 +1,29 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\OkVolleyVibes.Application\OkVolleyVibes.Application.csproj" />
     <ProjectReference Include="..\OkVolleyVibes.Domain\OkVolleyVibes.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Infrastructure hosts ASP.NET Core Identity (an infrastructure concern); Domain/Application stay clean. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
+  </ItemGroup>
+
+  <!-- Files use a hyphen ("strings-en.json"), not "strings.en.json", so MSBuild does not treat
+       the culture segment as a satellite resource and move it out of the main assembly. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\strings-*.json" />
+    <EmbeddedResource Include="Identity\common-passwords.txt" />
   </ItemGroup>
 
   <PropertyGroup>

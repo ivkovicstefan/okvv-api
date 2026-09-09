@@ -1,0 +1,12 @@
+{
+  "Register.FirstName.Required": "First name is required.",
+  "Register.LastName.Required": "Last name is required.",
+  "Register.Email.Required": "Email is required.",
+  "Register.Email.Invalid": "Enter a valid email address.",
+  "Register.Phone.Required": "Phone number is required.",
+  "Register.Phone.Invalid": "Enter a valid phone number.",
+  "Register.Password.Required": "Password is required.",
+  "Register.Password.TooShort": "Password must be at least {0} characters.",
+  "Email.Verify.Subject": "Confirm your OK Volley Vibes account",
+  "Email.Verify.Body": "<p>Welcome to OK Volley Vibes!</p><p>Confirm your email address to activate your account:</p><p><a href=\"{0}\">Confirm my email</a></p><p>This link expires in 24 hours. If you didn't create an account, you can ignore this message.</p>"
+}
