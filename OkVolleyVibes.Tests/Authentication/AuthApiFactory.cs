@@ -1,3 +1,6 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -26,12 +29,43 @@ public sealed class AuthApiFactory : WebApplicationFactory<Program>, IAsyncLifet
             "ConnectionStrings:Database",
             $"Server=(localdb)\\MSSQLLocalDB;Database={_database};Trusted_Connection=True;TrustServerCertificate=True");
         builder.UseSetting("Seed:Enabled", "false");
+        builder.UseSetting("Jwt:SigningKey", "test-signing-key-that-is-comfortably-longer-than-32-bytes");
 
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Email);
         });
+    }
+
+    /// <summary>Registers a user, confirms the email, and returns the caller's id + fresh tokens.</summary>
+    public async Task<AuthedUser> RegisterAndVerifyAsync(string email)
+    {
+        HttpClient client = CreateClient();
+
+        HttpResponseMessage register = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            firstName = "Test",
+            lastName = "User",
+            email,
+            phoneNumber = "+381641234567",
+            password = "a-good-long-passphrase-42",
+        });
+        register.EnsureSuccessStatusCode();
+        Guid userId = (await register.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("userId").GetGuid();
+
+        HttpResponseMessage verify = await client.GetAsync(Email.VerificationPathFor(email));
+        verify.EnsureSuccessStatusCode();
+        var tokens = (await verify.Content.ReadFromJsonAsync<TokenPair>())!;
+
+        return new AuthedUser(userId, email, tokens.AccessToken, tokens.RefreshToken);
+    }
+
+    public HttpClient CreateClient(string accessToken)
+    {
+        HttpClient client = CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        return client;
     }
 
     async Task IAsyncLifetime.InitializeAsync()
@@ -47,4 +81,8 @@ public sealed class AuthApiFactory : WebApplicationFactory<Program>, IAsyncLifet
 
         await base.DisposeAsync();
     }
+
+    public sealed record AuthedUser(Guid UserId, string Email, string AccessToken, string RefreshToken);
+
+    private sealed record TokenPair(string AccessToken, string RefreshToken);
 }

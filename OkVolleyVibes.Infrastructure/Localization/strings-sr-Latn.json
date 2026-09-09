@@ -8,5 +8,17 @@
   "Register.Password.Required": "Lozinka je obavezna.",
   "Register.Password.TooShort": "Lozinka mora imati najmanje {0} znakova.",
   "Email.Verify.Subject": "Potvrdite svoj OK Volley Vibes nalog",
-  "Email.Verify.Body": "<p>Dobro došli u OK Volley Vibes!</p><p>Potvrdite svoju imejl adresu da biste aktivirali nalog:</p><p><a href=\"{0}\">Potvrdi imejl</a></p><p>Ovaj link ističe za 24 sata. Ako niste kreirali nalog, zanemarite ovu poruku.</p>"
+  "Email.Verify.Body": "<p>Dobro došli u OK Volley Vibes!</p><p>Potvrdite svoju imejl adresu da biste aktivirali nalog:</p><p><a href=\"{0}\">Potvrdi imejl</a></p><p>Ovaj link ističe za 24 sata. Ako niste kreirali nalog, zanemarite ovu poruku.</p>",
+  "Profile.Dob.Implausible": "Unesite ispravan datum rođenja.",
+  "Profile.Language.Unsupported": "Izaberite jedan od podržanih jezika.",
+  "Profile.Skill.Range": "Ocenite svoje umeće ocenom od 1 do 10.",
+  "Profile.TrainingHistory.Required": "Navedite u kojim klubovima ste trenirali i u kom periodu.",
+  "Profile.Positions.Required": "Izaberite bar jednu poziciju.",
+  "Profile.Positions.Invalid": "To nije važeća pozicija.",
+  "Profile.RecExperience.Required": "Recite nam koliko ste rekreativno igrali odbojku.",
+  "Profile.Rules.MustAgree": "Morate prihvatiti pravila kluba da biste nastavili.",
+  "Photo.Required": "Izaberite sliku za otpremanje.",
+  "Photo.TooLarge": "Slika mora biti najviše 512 KB.",
+  "Photo.UnsupportedType": "Otpremite JPEG, PNG ili WebP sliku.",
+  "Photo.NotAnImage": "Ta datoteka ne izgleda kao slika."
 }

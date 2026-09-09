@@ -125,6 +125,51 @@ namespace OkVolleyVibes.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("OkVolleyVibes.Domain.Onboarding.OnboardingSurvey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("AgreedToClubRules")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ClubInterest")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CompletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("HasTrainedBefore")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Positions")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RecreationalExperience")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("SkillRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TrainingHistory")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("OnboardingSurveys", (string)null);
+                });
+
             modelBuilder.Entity("OkVolleyVibes.Domain.Players.PlayerProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -148,6 +193,39 @@ namespace OkVolleyVibes.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("PlayerProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("OkVolleyVibes.Infrastructure.Identity.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("OkVolleyVibes.Infrastructure.Identity.Role", b =>
@@ -194,6 +272,9 @@ namespace OkVolleyVibes.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -236,6 +317,9 @@ namespace OkVolleyVibes.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("ProfileCompletedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -257,6 +341,28 @@ namespace OkVolleyVibes.Infrastructure.Persistence.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("OkVolleyVibes.Infrastructure.Persistence.UserPhoto", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UploadedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserPhotos", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -310,11 +416,38 @@ namespace OkVolleyVibes.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OkVolleyVibes.Domain.Onboarding.OnboardingSurvey", b =>
+                {
+                    b.HasOne("OkVolleyVibes.Infrastructure.Identity.User", null)
+                        .WithOne()
+                        .HasForeignKey("OkVolleyVibes.Domain.Onboarding.OnboardingSurvey", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("OkVolleyVibes.Domain.Players.PlayerProfile", b =>
                 {
                     b.HasOne("OkVolleyVibes.Infrastructure.Identity.User", null)
                         .WithOne()
                         .HasForeignKey("OkVolleyVibes.Domain.Players.PlayerProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OkVolleyVibes.Infrastructure.Identity.RefreshToken", b =>
+                {
+                    b.HasOne("OkVolleyVibes.Infrastructure.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("OkVolleyVibes.Infrastructure.Persistence.UserPhoto", b =>
+                {
+                    b.HasOne("OkVolleyVibes.Infrastructure.Identity.User", null)
+                        .WithOne()
+                        .HasForeignKey("OkVolleyVibes.Infrastructure.Persistence.UserPhoto", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

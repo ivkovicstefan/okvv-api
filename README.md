@@ -57,15 +57,22 @@ Endpoints so far:
 | `GET /openapi/v1.json` | OpenAPI document (Development only) |
 | `GET /swagger` | Swagger UI (Development only) |
 | `POST /api/auth/register` | Sign up → `Player` role + verification email |
-| `GET /api/auth/verify-email?userId=&token=` | Confirm an email address |
+| `GET /api/auth/verify-email?userId=&token=` | Confirm email **and sign in** → `{ accessToken, refreshToken, … }` |
 | `POST /api/auth/resend-verification` | Re-send the verification email (always `202`) |
-| `GET /_diag/throw/{kind}` · `GET /_diag/ping?message=` | Pipeline probes (Development/Testing only) |
+| `POST /api/auth/refresh` · `POST /api/auth/logout` | Rotate / revoke the refresh token |
+| `POST /api/account/complete-profile` | Onboarding survey → fresh tokens with `profile_completed=true` |
+| `GET /api/account/profile` | The signed-in user's profile + onboarding status |
+| `POST /api/account/photo` · `GET /api/account/photo/{userId}` | Profile photo (JPEG/PNG/WebP ≤ 512 KB) |
+| `GET /_diag/throw/{kind}` · `/_diag/ping` · `/_diag/whoami` | Probes (Development/Testing only) |
 
 ## Accounts, identity & localization
 
 ASP.NET Core Identity (`User`/`Role`, Guid keys) in Infrastructure; `PlayerProfile` (1:1) in Domain.
-Multi-role users; self-registration → `Player`; email verification required. Localized
-(`en` / `sr-Latn` / `ru`) validation messages and emails. See [`docs/identity-and-auth.md`](docs/identity-and-auth.md).
+Multi-role users; self-registration → `Player`; email verification required. **JWT** access (15 min) +
+rotating refresh (30 d, hashed). Verifying the email signs the user in; a **mandatory onboarding
+survey** must be completed before any `ProfileComplete`-protected endpoint responds (`403 profile.incomplete`).
+Localized (`en` / `sr-Latn` / `ru`) validation messages and emails.
+See [`docs/identity-and-auth.md`](docs/identity-and-auth.md) and [`docs/profile-setup.md`](docs/profile-setup.md).
 
 ## Error handling
 
@@ -76,7 +83,7 @@ a chain of `IExceptionHandler`s renders RFC 9457 `ProblemDetails` with `errorCod
 
 ## Next steps (not yet done)
 
-- Login (JWT access + refresh, lockout), refresh rotation, logout — `feature/auth-login`
+- Email + password **login** endpoint (issues the same JWTs; lockout enforcement) — `feature/auth-login`
 - Password reset, change password, change email — their own branches
 - Roles & user administration (FR-B); Google OAuth (later)
 - Central Package Management (`Directory.Packages.props`); GitHub Actions CI

@@ -16,5 +16,10 @@ public sealed class User : IdentityUser<Guid>
     /// <summary>BCP-47 tag: <c>en</c>, <c>sr-Latn</c> or <c>ru</c>. Drives localized emails.</summary>
     public string PreferredLanguage { get; set; } = "en";
 
+    public DateOnly? DateOfBirth { get; set; }
+
     public DateTime CreatedAtUtc { get; set; }
+
+    /// <summary>Set once the user finishes the onboarding survey (FR-A11). Null = onboarding pending.</summary>
+    public DateTime? ProfileCompletedAtUtc { get; set; }
 }

@@ -55,6 +55,7 @@ internal sealed class AppExceptionHandler(
     private static int StatusFor(AppException exception) => exception switch
     {
         ValidationException => StatusCodes.Status400BadRequest,
+        UnauthorizedException => StatusCodes.Status401Unauthorized,
         NotFoundException => StatusCodes.Status404NotFound,
         ForbiddenException => StatusCodes.Status403Forbidden,
         ConflictException => StatusCodes.Status409Conflict,
@@ -65,6 +66,7 @@ internal sealed class AppExceptionHandler(
     private static string TitleFor(int status) => status switch
     {
         StatusCodes.Status400BadRequest => "Bad Request",
+        StatusCodes.Status401Unauthorized => "Unauthorized",
         StatusCodes.Status403Forbidden => "Forbidden",
         StatusCodes.Status404NotFound => "Not Found",
         StatusCodes.Status409Conflict => "Conflict",
