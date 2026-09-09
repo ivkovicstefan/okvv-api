@@ -120,4 +120,23 @@ public sealed class CompleteProfileTests(AuthApiFactory factory) : IClassFixture
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task A_malformed_body_is_400_not_500()
+    {
+        AuthApiFactory.AuthedUser user = await factory.RegisterAndVerifyAsync("cp.malformed@example.com");
+
+        // Unknown enum value + wrong type for recreationalExperience.
+        var badJson = new StringContent(
+            """{"dateOfBirth":"2001-01-01","preferredLanguage":"en","skillRating":5,"hasTrainedBefore":true,"trainingHistory":"x","positions":["OH"],"recreationalExperience":true,"clubInterest":"Recreational","agreedToClubRules":true}""",
+            System.Text.Encoding.UTF8,
+            "application/json");
+
+        HttpResponseMessage response = await factory.CreateClient(user.AccessToken)
+            .PostAsync("/api/account/complete-profile", badJson);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        JsonElement body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        body.GetProperty("errorCode").GetString().Should().Be("request.malformed");
+    }
 }

@@ -5,8 +5,8 @@ using OkVolleyVibes.Domain.Common.Exceptions;
 namespace OkVolleyVibes.Api.ExceptionHandling;
 
 /// <summary>
-/// Translates <see cref="AppException"/>s into RFC 9457 <c>ProblemDetails</c> responses.
-/// Anything that is not an <see cref="AppException"/> is passed on to the next handler.
+/// Translates <see cref="AppException"/>s (and malformed-request errors from model binding) into
+/// RFC 9457 <c>ProblemDetails</c>. Anything else is passed on to the next handler.
 /// </summary>
 internal sealed class AppExceptionHandler(
     IProblemDetailsService problemDetailsService,
@@ -15,19 +15,45 @@ internal sealed class AppExceptionHandler(
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        if (exception is not AppException appException)
+        switch (exception)
         {
-            return false;
+            case AppException appException:
+                return await WriteAsync(
+                    httpContext,
+                    StatusFor(appException),
+                    appException.ErrorCode,
+                    appException.Message,
+                    appException.Errors.Count > 0 ? appException.Errors : null,
+                    logLevel: LogLevel.Warning,
+                    logged: appException);
+
+            case BadHttpRequestException badRequest:
+                // Bad JSON, wrong field type, unknown enum value, etc. — never a 500.
+                return await WriteAsync(
+                    httpContext,
+                    badRequest.StatusCode is >= 400 and < 500 ? badRequest.StatusCode : StatusCodes.Status400BadRequest,
+                    "request.malformed",
+                    "The request body could not be read. Check the field names, types and values.",
+                    errors: null,
+                    logLevel: LogLevel.Warning,
+                    logged: badRequest);
+
+            default:
+                return false;
         }
+    }
 
-        int status = StatusFor(appException);
-
-        logger.LogWarning(
-            appException,
-            "Handled {ExceptionType} ({ErrorCode}) -> {StatusCode}",
-            appException.GetType().Name,
-            appException.ErrorCode,
-            status);
+    private async ValueTask<bool> WriteAsync(
+        HttpContext httpContext,
+        int status,
+        string errorCode,
+        string detail,
+        IReadOnlyDictionary<string, string[]>? errors,
+        LogLevel logLevel,
+        Exception logged)
+    {
+        logger.Log(logLevel, logged, "Handled {ExceptionType} ({ErrorCode}) -> {StatusCode}",
+            logged.GetType().Name, errorCode, status);
 
         httpContext.Response.StatusCode = status;
 
@@ -35,14 +61,13 @@ internal sealed class AppExceptionHandler(
         {
             Status = status,
             Title = TitleFor(status),
-            Detail = appException.Message,
+            Detail = detail,
             Type = $"https://httpstatuses.io/{status}",
         };
-        problem.Extensions["errorCode"] = appException.ErrorCode;
-
-        if (appException.Errors.Count > 0)
+        problem.Extensions["errorCode"] = errorCode;
+        if (errors is not null)
         {
-            problem.Extensions["errors"] = appException.Errors;
+            problem.Extensions["errors"] = errors;
         }
 
         return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext

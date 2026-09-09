@@ -30,6 +30,10 @@ public static class DependencyInjection
         services.ConfigureHttpJsonOptions(options =>
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+        // Always surface malformed request bodies as a thrown BadHttpRequestException so the
+        // exception handler turns them into a `request.malformed` ProblemDetails (not a bare 400).
+        services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
+
         // Cap multipart uploads a little above the profile-photo limit.
         services.Configure<FormOptions>(options =>
             options.MultipartBodyLengthLimit = PhotoLimits.MaxBytes + (64 * 1024));
