@@ -35,7 +35,7 @@ public static class DependencyInjection
             options.MultipartBodyLengthLimit = PhotoLimits.MaxBytes + (64 * 1024));
 
         services.AddHealthChecks();
-        services.AddOpenApi();
+        services.AddOpenApi(options => options.AddDocumentTransformer<OpenApi.BearerSecuritySchemeTransformer>());
 
         services.AddAuthorizationBuilder()
             .SetDefaultPolicy(new AuthorizationPolicyBuilder()
