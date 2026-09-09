@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OkVolleyVibes.Application.Common.Abstractions;
 using OkVolleyVibes.Application.Common.Behaviors;
+using OkVolleyVibes.Domain.Onboarding;
 using OkVolleyVibes.Domain.Players;
 using OkVolleyVibes.Mediator;
 
@@ -59,6 +60,8 @@ public sealed class TransactionBehaviorTests
         public FakeTransaction? Transaction { get; private set; }
 
         public DbSet<PlayerProfile> PlayerProfiles => throw new NotSupportedException();
+
+        public DbSet<OnboardingSurvey> OnboardingSurveys => throw new NotSupportedException();
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(0);
 

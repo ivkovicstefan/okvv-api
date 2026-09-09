@@ -8,5 +8,17 @@
   "Register.Password.Required": "Password is required.",
   "Register.Password.TooShort": "Password must be at least {0} characters.",
   "Email.Verify.Subject": "Confirm your OK Volley Vibes account",
-  "Email.Verify.Body": "<p>Welcome to OK Volley Vibes!</p><p>Confirm your email address to activate your account:</p><p><a href=\"{0}\">Confirm my email</a></p><p>This link expires in 24 hours. If you didn't create an account, you can ignore this message.</p>"
+  "Email.Verify.Body": "<p>Welcome to OK Volley Vibes!</p><p>Confirm your email address to activate your account:</p><p><a href=\"{0}\">Confirm my email</a></p><p>This link expires in 24 hours. If you didn't create an account, you can ignore this message.</p>",
+  "Profile.Dob.Implausible": "Enter a valid date of birth.",
+  "Profile.Language.Unsupported": "Choose one of the supported languages.",
+  "Profile.Skill.Range": "Rate your skill from 1 to 10.",
+  "Profile.TrainingHistory.Required": "Tell us which clubs you trained with and when.",
+  "Profile.Positions.Required": "Select at least one position.",
+  "Profile.Positions.Invalid": "That is not a valid position.",
+  "Profile.RecExperience.Required": "Let us know how much recreational volleyball you've played.",
+  "Profile.Rules.MustAgree": "You must agree to the club rules to continue.",
+  "Photo.Required": "Choose an image to upload.",
+  "Photo.TooLarge": "The image must be 512 KB or smaller.",
+  "Photo.UnsupportedType": "Upload a JPEG, PNG or WebP image.",
+  "Photo.NotAnImage": "That file doesn't look like an image."
 }

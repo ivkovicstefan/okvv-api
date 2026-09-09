@@ -20,6 +20,15 @@ public interface IIdentityService
 
     /// <summary>Confirms the address. Throws <c>NotFoundException</c> for an unknown user, <c>ValidationException</c> for a bad or expired token.</summary>
     Task ConfirmEmailAsync(Guid userId, string token, CancellationToken cancellationToken);
+
+    Task<UserProfileSnapshot?> GetProfileAsync(Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>Updates the basic profile fields collected during onboarding / in profile settings.</summary>
+    Task UpdateProfileBasicsAsync(
+        Guid userId, DateOnly dateOfBirth, string preferredLanguage, CancellationToken cancellationToken);
+
+    /// <summary>Stamps the user as having finished onboarding.</summary>
+    Task MarkOnboardingCompletedAsync(Guid userId, DateTime completedAtUtc, CancellationToken cancellationToken);
 }
 
 /// <summary>Data needed to create a new account.</summary>
@@ -30,3 +39,15 @@ public sealed record NewUser(
     string PhoneNumber,
     string Password,
     string PreferredLanguage);
+
+/// <summary>Read-only view of a user's identity + basic profile.</summary>
+public sealed record UserProfileSnapshot(
+    Guid UserId,
+    string Email,
+    string FirstName,
+    string LastName,
+    string? PhoneNumber,
+    string PreferredLanguage,
+    DateOnly? DateOfBirth,
+    bool ProfileCompleted,
+    IReadOnlyList<string> Roles);

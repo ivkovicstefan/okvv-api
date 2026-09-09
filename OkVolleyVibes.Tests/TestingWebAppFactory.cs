@@ -14,6 +14,7 @@ public sealed class TestingWebAppFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("Seed:Enabled", "false");
+        builder.UseSetting("Jwt:SigningKey", "test-signing-key-that-is-comfortably-longer-than-32-bytes");
         builder.UseSetting(
             "ConnectionStrings:Database",
             "Server=(localdb)\\MSSQLLocalDB;Database=OkVolleyVibes_Test_Unused;Trusted_Connection=True;TrustServerCertificate=True");

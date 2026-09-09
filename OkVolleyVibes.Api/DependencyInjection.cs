@@ -1,31 +1,58 @@
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
+using OkVolleyVibes.Api.Auth;
 using OkVolleyVibes.Api.Endpoints;
 using OkVolleyVibes.Api.ExceptionHandling;
+using OkVolleyVibes.Application.Account.UploadPhoto;
+using OkVolleyVibes.Application.Common.Abstractions;
+using OkVolleyVibes.Domain.Common;
 
 namespace OkVolleyVibes.Api;
 
 public static class DependencyInjection
 {
-    /// <summary>Supported UI cultures. First entry is the default.</summary>
-    public static readonly string[] SupportedCultures = ["en", "sr-Latn", "ru"];
-
-    /// <summary>Rate-limiter policy name applied to the authentication endpoints.</summary>
+    /// <summary>Rate-limiter policy applied to the authentication endpoints.</summary>
     public const string AuthRateLimitPolicy = "auth";
 
-    /// <summary>Registers presentation-layer services (endpoints, localization, rate limiting, OpenAPI, error handling).</summary>
+    /// <summary>Policy for endpoints that need a signed-in user whose onboarding is finished.</summary>
+    public const string ProfileCompletePolicy = "ProfileComplete";
+
+    /// <summary>Registers presentation-layer services (auth, endpoints, localization, rate limiting, OpenAPI, error handling).</summary>
     public static IServiceCollection AddApi(this IServiceCollection services)
     {
         services.AddEndpoints();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+
+        services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+        // Cap multipart uploads a little above the profile-photo limit.
+        services.Configure<FormOptions>(options =>
+            options.MultipartBodyLengthLimit = PhotoLimits.MaxBytes + (64 * 1024));
 
         services.AddHealthChecks();
         services.AddOpenApi();
 
+        services.AddAuthorizationBuilder()
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build())
+            .AddPolicy(ProfileCompletePolicy, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireClaim(AppClaimTypes.ProfileCompleted, "true"));
+
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, ProblemDetailsAuthorizationResultHandler>();
+
+        string[] cultures = [.. Language.Supported];
         services.AddRequestLocalization(options =>
         {
-            options.SetDefaultCulture(SupportedCultures[0])
-                .AddSupportedCultures(SupportedCultures)
-                .AddSupportedUICultures(SupportedCultures);
+            options.SetDefaultCulture(Language.Default)
+                .AddSupportedCultures(cultures)
+                .AddSupportedUICultures(cultures);
             options.ApplyCurrentCultureToResponseHeaders = true;
         });
 
@@ -66,7 +93,14 @@ public static class DependencyInjection
     {
         app.UseExceptionHandler();
         app.UseRequestLocalization();
-        app.UseRateLimiter();
+
+        if (!app.Environment.IsEnvironment("Testing"))
+        {
+            app.UseRateLimiter();
+        }
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         if (app.Environment.IsDevelopment())
         {

@@ -29,7 +29,10 @@ public sealed class VerifyEmailTests(AuthApiFactory factory) : IClassFixture<Aut
 
         HttpResponseMessage response = await _client.GetAsync(factory.Email.VerificationPathFor(email));
 
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        JsonElement tokens = await response.Content.ReadFromJsonAsync<JsonElement>();
+        tokens.GetProperty("accessToken").GetString().Should().NotBeNullOrWhiteSpace();
+        tokens.GetProperty("refreshToken").GetString().Should().NotBeNullOrWhiteSpace();
 
         using IServiceScope scope = factory.Services.CreateScope();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<User>>();

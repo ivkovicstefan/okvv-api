@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OkVolleyVibes.Domain.Onboarding;
 using OkVolleyVibes.Domain.Players;
 
 namespace OkVolleyVibes.Application.Common.Abstractions;
@@ -10,6 +11,8 @@ namespace OkVolleyVibes.Application.Common.Abstractions;
 public interface IAppDbContext
 {
     DbSet<PlayerProfile> PlayerProfiles { get; }
+
+    DbSet<OnboardingSurvey> OnboardingSurveys { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

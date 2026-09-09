@@ -1,8 +1,11 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using OkVolleyVibes.Application.Common.Abstractions;
 using OkVolleyVibes.Infrastructure.Configuration;
 using OkVolleyVibes.Infrastructure.Email;
@@ -64,10 +67,40 @@ public static class DependencyInjection
         services.Configure<AppUrls>(configuration.GetSection(AppUrls.SectionName));
         services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
 
+        var jwt = new JwtOptions();
+        configuration.GetSection(JwtOptions.SectionName).Bind(jwt);
+        if (Encoding.UTF8.GetByteCount(jwt.SigningKey) < 32)
+        {
+            throw new InvalidOperationException("Jwt:SigningKey is missing or shorter than 32 bytes.");
+        }
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwt.Audience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromSeconds(30),
+                    NameClaimType = AppClaimTypes.Subject,
+                    RoleClaimType = AppClaimTypes.Role,
+                };
+            });
+
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<ITranslator, JsonTranslator>();
         services.AddScoped<IClock, SystemClock>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<IUserPhotoStore, DbUserPhotoStore>();
         services.AddScoped<IEmailSender, ConsoleEmailSender>();
         services.AddScoped<IAuthLinkBuilder, AuthLinkBuilder>();
         services.AddScoped<DatabaseSeeder>();

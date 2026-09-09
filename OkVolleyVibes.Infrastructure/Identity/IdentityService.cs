@@ -90,6 +90,52 @@ internal sealed class IdentityService(UserManager<User> userManager, IClock cloc
         }
     }
 
+    public async Task<UserProfileSnapshot?> GetProfileAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        User? user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return null;
+        }
+
+        IList<string> roles = await userManager.GetRolesAsync(user);
+
+        return new UserProfileSnapshot(
+            user.Id,
+            user.Email ?? string.Empty,
+            user.FirstName,
+            user.LastName,
+            user.PhoneNumber,
+            user.PreferredLanguage,
+            user.DateOfBirth,
+            user.ProfileCompletedAtUtc is not null,
+            [.. roles]);
+    }
+
+    public async Task UpdateProfileBasicsAsync(
+        Guid userId, DateOnly dateOfBirth, string preferredLanguage, CancellationToken cancellationToken)
+    {
+        User user = await RequireUser(userId);
+        user.DateOfBirth = dateOfBirth;
+        user.PreferredLanguage = preferredLanguage;
+
+        IdentityResult result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new ValidationException(new Dictionary<string, string[]>
+            {
+                ["profile"] = result.Errors.Select(e => e.Description).ToArray(),
+            });
+        }
+    }
+
+    public async Task MarkOnboardingCompletedAsync(Guid userId, DateTime completedAtUtc, CancellationToken cancellationToken)
+    {
+        User user = await RequireUser(userId);
+        user.ProfileCompletedAtUtc = completedAtUtc;
+        await userManager.UpdateAsync(user);
+    }
+
     private async Task<User> RequireUser(Guid userId)
         => await userManager.FindByIdAsync(userId.ToString())
            ?? throw new NotFoundException("User", userId);
