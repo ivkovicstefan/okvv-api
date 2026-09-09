@@ -11,9 +11,11 @@ internal sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbCon
 {
     public AppDbContext CreateDbContext(string[] args)
     {
+        // Same LocalDB database the app uses in Development, so `dotnet ef database update/drop`
+        // acts on the database you actually run against. Override with `dotnet ef --connection` if needed.
         DbContextOptions<AppDbContext> options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlServer(
-                "Server=(localdb)\\MSSQLLocalDB;Database=OkVolleyVibes-Design;Trusted_Connection=True;TrustServerCertificate=True",
+                "Server=(localdb)\\MSSQLLocalDB;Database=OkVolleyVibes;Trusted_Connection=True;TrustServerCertificate=True",
                 sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name))
             .Options;
 

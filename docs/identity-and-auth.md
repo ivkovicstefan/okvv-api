@@ -47,11 +47,20 @@ DB transaction: commit on success, roll back on exception. `RegisterCommand` use
 
 ## Seeding
 
-`DatabaseSeeder` always creates the five roles (`CEO`, `FinanceManager`, `Coach`,
-`RecreationCoordinator`, `Player`). When `Seed:Enabled` is `true` (Development only) it also creates
-the configured users — see `appsettings.Development.json` (`Seed:Users`). There is no "add a person"
-feature; everyone else self-registers. `DatabaseInitializer.InitializeDatabaseAsync` (migrate + seed)
-runs on startup in Development.
+The **`SeedBootstrapAccounts` migration** inserts the five roles (`CEO`, `FinanceManager`, `Coach`,
+`RecreationCoordinator`, `Player`) and the three founding club accounts — Stefan (CEO, Coach,
+RecreationCoordinator, Player), Luka (Coach, Player), Aleksa (RecreationCoordinator, Player) — with
+their role assignments and player profiles. Fixed GUIDs; a **fixed hash of the development password
+`DevPassw0rd!42`**. It is a dev/staging bootstrap — **do not apply it to real production** (provision
+production accounts with per-user passwords or a reset flow instead).
+
+`DatabaseSeeder` remains for *extra* ad-hoc dev users: set `Seed:Enabled: true` and add entries to
+`Seed:Users` in `appsettings.Development.json` (its role loop is now a no-op — the migration owns the
+roles). `DatabaseInitializer.InitializeDatabaseAsync` (migrate + seed) runs on startup in Development.
+There is no "add a person" feature; everyone else self-registers.
+
+`AppDbContextFactory` points the EF CLI at the same `OkVolleyVibes` LocalDB the app uses, so
+`dotnet ef database update` / `drop` act on the database you run against.
 
 ## Endpoints
 
